@@ -2,6 +2,10 @@
 using Library.ApplicationCore.Entities;
 using Library.ApplicationCore.Enums;
 using Library.Console;
+// Add the correct using directive for JsonData if it exists in another namespace
+// using Library.Infrastructure; // <-- Change this to the actual namespace where JsonData is defined
+// Ensure the correct namespace for JsonData is used below:
+using Library.Infrastructure.Data; // Replace with the actual namespace where JsonData is defined
 
 public class ConsoleApp
 {
@@ -16,13 +20,15 @@ public class ConsoleApp
     ILoanRepository _loanRepository;
     ILoanService _loanService;
     IPatronService _patronService;
+    private readonly JsonData _jsonData;
 
-    public ConsoleApp(ILoanService loanService, IPatronService patronService, IPatronRepository patronRepository, ILoanRepository loanRepository)
+    public ConsoleApp(ILoanService loanService, IPatronService patronService, IPatronRepository patronRepository, ILoanRepository loanRepository, JsonData jsonData)
     {
         _patronRepository = patronRepository;
         _loanRepository = loanRepository;
         _loanService = loanService;
         _patronService = patronService;
+        _jsonData = jsonData;
     }
 
     public async Task Run()
@@ -166,6 +172,10 @@ public class ConsoleApp
         {
             Console.WriteLine(" - \"m\" to extend patron's membership");
         }
+        if (options.HasFlag(CommonActions.SearchBooks))
+        {
+            Console.WriteLine(" - \"b\" to check for book availability");
+        }
         if (options.HasFlag(CommonActions.SearchPatrons))
         {
             Console.WriteLine(" - \"s\" for new search");
@@ -179,9 +189,54 @@ public class ConsoleApp
             Console.WriteLine("Or type a number to select a list item.");
         }
     }
+    
+    
+ async Task<ConsoleState> SearchBooks()
+ {
+     string? bookTitle = null;
+     while (string.IsNullOrWhiteSpace(bookTitle))
+     {
+         Console.Write("Enter a book title to search for: ");
+         bookTitle = Console.ReadLine();
+     }
+
+     await _jsonData.EnsureDataLoaded();
+
+     var book = _jsonData.Books?.FirstOrDefault(b => b.Title.Equals(bookTitle, StringComparison.OrdinalIgnoreCase));
+     if (book == null)
+     {
+         Console.WriteLine($"No book found with the title \"{bookTitle}\".");
+         return ConsoleState.PatronDetails;
+     }
+
+     var bookItems = _jsonData.BookItems?.Where(bi => bi.BookId == book.Id).ToList();
+     if (bookItems == null || !bookItems.Any())
+     {
+         Console.WriteLine($"No copies of \"{book.Title}\" are available in the library.");
+         return ConsoleState.PatronDetails;
+     }
+
+     var activeLoan = _jsonData.Loans?.FirstOrDefault(l => bookItems.Any(bi => bi.Id == l.BookItemId) && l.ReturnDate == null);
+     if (activeLoan == null)
+     {
+         Console.WriteLine($"\"{book.Title}\" is available for loan.");
+     }
+     else
+     {
+         Console.WriteLine($"\"{book.Title}\" is on loan to another patron. The return due date is {activeLoan.DueDate:d}.");
+     }
+
+     return ConsoleState.PatronDetails;
+ }
+
 
     async Task<ConsoleState> PatronDetails()
     {
+        if (selectedPatronDetails == null)
+        {
+            Console.WriteLine("No patron selected.");
+            return ConsoleState.PatronSearch;
+        }
         Console.WriteLine($"Name: {selectedPatronDetails.Name}");
         Console.WriteLine($"Membership Expiration: {selectedPatronDetails.MembershipEnd}");
         Console.WriteLine();
@@ -193,7 +248,7 @@ public class ConsoleApp
             loanNumber++;
         }
 
-        CommonActions options = CommonActions.SearchPatrons | CommonActions.Quit | CommonActions.Select | CommonActions.RenewPatronMembership;
+        CommonActions options = CommonActions.SearchPatrons | CommonActions.Quit | CommonActions.Select | CommonActions.RenewPatronMembership | CommonActions.SearchBooks;
         CommonActions action = ReadInputOptions(options, out int selectedLoanNumber);
         if (action == CommonActions.Select)
         {
@@ -223,6 +278,11 @@ public class ConsoleApp
             Console.WriteLine(EnumHelper.GetDescription(status));
             // reloading after renewing membership
             selectedPatronDetails = (await _patronRepository.GetPatron(selectedPatronDetails.Id))!;
+            return ConsoleState.PatronDetails;
+        }
+        else if (action == CommonActions.SearchBooks)
+        {
+            await SearchBooks();
             return ConsoleState.PatronDetails;
         }
 
