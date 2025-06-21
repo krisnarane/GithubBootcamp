@@ -1,75 +1,84 @@
 # Library App
 
-## Description
+## Descrição
 
-Library App is a modular application designed to manage library operations such as book loans, patron management, and inventory tracking. It is built using .NET and follows a clean architecture approach to ensure scalability and maintainability.
+Library App é uma aplicação modular desenvolvida para gerenciar operações de biblioteca, como empréstimos de livros, gestão de usuários (patrons) e controle de inventário. Construída em .NET, segue o padrão de arquitetura limpa (Clean Architecture), garantindo escalabilidade, organização e facilidade de manutenção.
 
-## Project Structure
+## Estrutura do Projeto
 
-- `AccelerateDevGHCopilot.sln` - Solution file for the project.
+- `AccelerateDevGHCopilot.sln` - Arquivo de solução principal do projeto.
 - `src/`
   - `Library.ApplicationCore/`
-    - `Entities/` - Contains core domain entities.
-    - `Enums/` - Defines enumerations used across the application.
-    - `Interfaces/` - Declares interfaces for core abstractions.
-    - `Services/` - Implements business logic and domain services.
-    - `Library.ApplicationCore.csproj` - Project file for the Application Core.
+    - `Entities/` - Entidades centrais do domínio (ex: Livro, Usuário, Empréstimo).
+    - `Enums/` - Enumerações utilizadas em toda a aplicação.
+    - `Interfaces/` - Interfaces para abstração das operações principais.
+    - `Services/` - Implementação das regras de negócio e serviços de domínio.
+    - `Library.ApplicationCore.csproj` - Projeto do núcleo da aplicação.
   - `Library.Console/`
-    - `appSettings.json` - Configuration file for the console application.
-    - `CommonActions.cs` - Contains reusable actions for the console app.
-    - `ConsoleApp.cs` - Main application logic for the console interface.
-    - `ConsoleState.cs` - Manages the state of the console application.
-    - `Program.cs` - Entry point for the console application.
-    - `Json/` - Contains JSON-related utilities or data.
-    - `Library.Console.csproj` - Project file for the Console application.
+    - `appSettings.json` - Arquivo de configuração da aplicação console.
+    - `CommonActions.cs` - Enumerações de ações reutilizáveis no console.
+    - `ConsoleApp.cs` - Lógica principal da interface de console.
+    - `ConsoleState.cs` - Gerencia os estados da aplicação console.
+    - `Program.cs` - Ponto de entrada da aplicação console.
+    - `Json/` - Dados e utilitários em formato JSON (livros, usuários, empréstimos, etc).
+    - `Library.Console.csproj` - Projeto da aplicação console.
   - `Library.Infrastructure/`
-    - `Data/` - Contains data access implementations.
-    - `Library.Infrastructure.csproj` - Project file for the Infrastructure layer.
+    - `Data/` - Implementações de acesso a dados (repositórios, leitura/gravação de JSON).
+    - `Library.Infrastructure.csproj` - Projeto da camada de infraestrutura.
 - `tests/`
   - `UnitTests/`
-    - `LoanFactory.cs` - Factory for creating test data related to loans.
-    - `PatronFactory.cs` - Factory for creating test data related to patrons.
-    - `ApplicationCore/` - Contains unit tests for the Application Core.
-    - `UnitTests.csproj` - Project file for unit tests.
+    - `LoanFactory.cs` - Fábrica para criação de dados de teste de empréstimos.
+    - `PatronFactory.cs` - Fábrica para criação de dados de teste de usuários.
+    - `ApplicationCore/` - Testes unitários do núcleo da aplicação.
+    - `UnitTests.csproj` - Projeto de testes unitários.
 
-## Key Classes and Interfaces
+## Principais Classes e Interfaces
 
-- **Entities**
-  - `Book` - Represents a book in the library.
-  - `Patron` - Represents a library patron.
-  - `Loan` - Represents a loan transaction.
+- **Entidades**
+  - `Book` - Representa um livro na biblioteca.
+  - `Patron` - Representa um usuário da biblioteca.
+  - `Loan` - Representa uma transação de empréstimo.
 - **Interfaces**
-  - `IBookRepository` - Interface for book-related data operations.
-  - `IPatronRepository` - Interface for patron-related data operations.
-  - `ILoanService` - Interface for managing loan operations.
-- **Services**
-  - `LoanService` - Implements loan-related business logic.
-  - `NotificationService` - Handles notifications for overdue loans.
+  - `IBookRepository` - Interface para operações de dados de livros.
+  - `IPatronRepository` - Interface para operações de dados de usuários.
+  - `ILoanService` - Interface para gerenciamento de empréstimos.
+- **Serviços**
+  - `LoanService` - Implementa a lógica de negócios relacionada a empréstimos.
+  - `NotificationService` - Gerencia notificações de empréstimos em atraso.
 
-## Usage
+## Como Usar
 
-1. Clone the repository:
+1. Clone o repositório:
 
    ```bash
-   git clone <repository-url>
+   git clone <url-do-repositorio>
    ```
 
-2. Open the solution file `AccelerateDevGHCopilot.sln` in Visual Studio.
+2. Abra o arquivo de solução `AccelerateDevGHCopilot.sln` no Visual Studio.
 
-3. Build the solution to restore dependencies and compile the code.
+3. Compile a solução para restaurar as dependências e gerar os binários.
 
-4. Run the console application:
+4. Execute a aplicação console:
 
    ```bash
    dotnet run --project src/Library.Console/Library.Console.csproj
    ```
 
-5. Execute unit tests:
+5. Execute os testes unitários:
 
    ```bash
    dotnet test tests/UnitTests/UnitTests.csproj
    ```
 
-## License
+## Funcionalidades
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+- Busca e cadastro de usuários (patrons)
+- Consulta e empréstimo de livros
+- Controle de devoluções e renovações
+- Visualização do histórico de empréstimos
+- Notificações para empréstimos em atraso
+- Persistência dos dados em arquivos JSON
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
