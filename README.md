@@ -51,7 +51,7 @@ Library App é uma aplicação modular desenvolvida para gerenciar operações d
 1. Clone o repositório:
 
    ```bash
-   git clone <url-do-repositorio>
+   git clone https://github.com/krisnarane/GithubBootcamp
    ```
 
 2. Abra o arquivo de solução `AccelerateDevGHCopilot.sln` no Visual Studio.
