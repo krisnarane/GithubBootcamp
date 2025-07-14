@@ -46,6 +46,162 @@ Library App é uma aplicação modular desenvolvida para gerenciar operações d
   - `LoanService` - Implementa a lógica de negócios relacionada a empréstimos.
   - `NotificationService` - Gerencia notificações de empréstimos em atraso.
 
+# Diagrama UML - Mermaid
+```mermaid
+classDiagram
+    %% Entidades
+    class Author {
+        +Id: int
+        +Name: string
+        +Biography: string
+        +Books: List~Book~
+    }
+
+    class Book {
+        +Id: int
+        +Title: string
+        +ISBN: string
+        +AuthorId: int
+        +Author: Author
+        +BookItems: List~BookItem~
+    }
+
+    class BookItem {
+        +Id: int
+        +Barcode: string
+        +IsAvailable: bool
+        +BookId: int
+        +Book: Book
+        +Loans: List~Loan~
+    }
+
+    class Patron {
+        +Id: int
+        +Name: string
+        +Email: string
+        +MembershipExpiration: DateTime
+        +Loans: List~Loan~
+    }
+
+    class Loan {
+        +Id: int
+        +LoanDate: DateTime
+        +DueDate: DateTime
+        +ReturnDate: DateTime?
+        +Status: LoanStatus
+        +BookItemId: int
+        +BookItem: BookItem
+        +PatronId: int
+        +Patron: Patron
+        +Extensions: List~LoanExtension~
+    }
+
+    %% Enums
+    class LoanStatus {
+        <<enumeration>>
+        Active
+        Returned
+        Overdue
+        Lost
+    }
+
+    class LoanExtensionStatus {
+        <<enumeration>>
+        Approved
+        Denied
+        Pending
+    }
+
+    class MembershipRenewalStatus {
+        <<enumeration>>
+        Success
+        Failed
+        Pending
+    }
+
+    %% Interfaces de Serviço
+    class ILoanService {
+        <<interface>>
+        +BorrowBook(patronId: int, bookItemId: int): Loan
+        +ReturnBook(loanId: int): LoanReturnStatus
+        +ExtendLoan(loanId: int): LoanExtensionStatus
+        +GetActiveLoans(patronId: int): List~Loan~
+    }
+
+    class IPatronService {
+        <<interface>>
+        +RegisterPatron(patron: Patron): Patron
+        +RenewMembership(patronId: int): MembershipRenewalStatus
+        +GetPatronDetails(patronId: int): Patron
+    }
+
+    %% Interfaces de Repositório
+    class ILoanRepository {
+        <<interface>>
+        +Add(loan: Loan): void
+        +GetById(id: int): Loan?
+        +GetActiveLoans(patronId: int): List~Loan~
+        +Update(loan: Loan): void
+    }
+
+    class IPatronRepository {
+        <<interface>>
+        +Add(patron: Patron): void
+        +GetById(id: int): Patron?
+        +Update(patron: Patron): void
+    }
+
+    %% Implementações
+    class LoanService {
+        -_loanRepository: ILoanRepository
+        +BorrowBook(patronId: int, bookItemId: int): Loan
+        +ReturnBook(loanId: int): LoanReturnStatus
+        +ExtendLoan(loanId: int): LoanExtensionStatus
+        +GetActiveLoans(patronId: int): List~Loan~
+    }
+
+    class PatronService {
+        -_patronRepository: IPatronRepository
+        +RegisterPatron(patron: Patron): Patron
+        +RenewMembership(patronId: int): MembershipRenewalStatus
+        +GetPatronDetails(patronId: int): Patron
+    }
+
+    class JsonLoanRepository {
+        -_jsonData: JsonData
+        +Add(loan: Loan): void
+        +GetById(id: int): Loan?
+        +GetActiveLoans(patronId: int): List~Loan~
+        +Update(loan: Loan): void
+    }
+
+    class JsonPatronRepository {
+        -_jsonData: JsonData
+        +Add(patron: Patron): void
+        +GetById(id: int): Patron?
+        +Update(patron: Patron): void
+    }
+
+    %% Relacionamentos
+    Author "1" -- "*" Book: writes
+    Book "1" -- "*" BookItem: has copies
+    BookItem "1" -- "*" Loan: is borrowed in
+    Patron "1" -- "*" Loan: has
+    Loan "1" -- "*" LoanExtension: has
+
+    %% Implementações de interfaces
+    ILoanService <|.. LoanService: implements
+    IPatronService <|.. PatronService: implements
+    ILoanRepository <|.. JsonLoanRepository: implements
+    IPatronRepository <|.. JsonPatronRepository: implements
+
+    %% Dependências
+    LoanService --> ILoanRepository: depends on
+    PatronService --> IPatronRepository: depends on
+    JsonLoanRepository --> JsonData: uses
+    JsonPatronRepository --> JsonData: uses
+```
+
 ## Como Usar
 
 1. Clone o repositório:
